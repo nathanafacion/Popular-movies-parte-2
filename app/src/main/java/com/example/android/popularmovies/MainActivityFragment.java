@@ -3,6 +3,7 @@ package com.example.android.popularmovies;
 import android.app.Fragment;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,9 +29,12 @@ public class MainActivityFragment extends Fragment {
     public static  GridView gridView;
     private static List<Movie> movieList = new ArrayList<Movie>();
     public static TextView emptyFavoriteView;
+    private static Parcelable state;
 
     public MainActivityFragment() {
-        loadMoviesData(MainActivity.getFilter());
+        if (movieList == null || movieList.size() == 0) {
+            loadMoviesData(MainActivity.getFilter());
+        }
     }
 
     @Override
@@ -46,7 +50,17 @@ public class MainActivityFragment extends Fragment {
         mLoadingIndicator = (ProgressBar) rootView.findViewById(R.id.pb_loading_indicator);
 
         emptyFavoriteView = (TextView) rootView.findViewById(R.id.tv_without_favorite);
+
+        if(state != null){
+            gridView.onRestoreInstanceState(state);
+        }
         return rootView;
+    }
+
+    @Override
+    public void onPause() {
+        state = gridView.onSaveInstanceState();
+        super.onPause();
     }
 
     public static void loadMoviesData(String filter) {
